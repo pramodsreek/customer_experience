@@ -1,4 +1,7 @@
 class TrackingSingleton:
+   '''
+   A class to keep track of the number of calls for data, to avoid too many requests when tested on a public server. 
+   '''
    __instance = None
    @staticmethod 
    def get_instance():

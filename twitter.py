@@ -1,8 +1,14 @@
+#!/usr/bin/python3
+'''
+Flask app with two routes. The first route is home page to enter data and the second route displays the processed data. The first route collects twitter handles for the user and the competitor and the second route displays the positive + neutral sentiment tweets and negative sentiment tweets. It also displays the comparison of sentiment with a competitor using interactive visualisation library. This is a POC. Tweets can be filtered and categorised further..
+'''
 from flask import Flask, render_template, url_for, redirect
 
 import numpy as np
 import pandas as pd
+
 import tweepy_streamer
+from tracking_singleton import TrackingSingleton
 
 from bokeh.embed import components
 from bokeh.plotting import figure
@@ -15,7 +21,6 @@ from forms import TwitterHandleForm
 
 import os
 import re
-from tracking_singleton import TrackingSingleton
 
 import logging
 
@@ -26,7 +31,7 @@ logging.basicConfig(filename='data/customer_xp.log',
                             datefmt='%H:%M:%S',
                             level=logging.DEBUG)
 
-logging.info("POC - Twitter API - Main")
+logging.info("POC - Twitter API - Flask App")
 
 LOGGER = logging.getLogger('CustomerXP')
 
@@ -36,6 +41,9 @@ app.config['SECRET_KEY'] = 'customerxp'
 @app.route('/', methods=['GET','POST'])
 @app.route('/customerxp', methods=['GET','POST'])
 def customerxp():
+    '''
+    Returns a form to enter twitter handle and competitors twitter handle. After the form is submitted, this functions validates the twitter handles and fetches data for presentation from twitter. If there is an error, the error is added to form object and the form is displayed again with the error message for the user to correct and resubmit. 
+    '''
     form = TwitterHandleForm()
     LOGGER.debug(f"Parameters passed to customer xp (home) Twitter Handle {form.twitter_handle.data} Competitor Handle {form.competitors_twitter_handle.data} Errors {form.twitter_handle_error.data}")
     form.twitter_handle_error.data = " "
@@ -45,6 +53,7 @@ def customerxp():
         if form.validate():
             tracking_singleton.set_user_search_count()
             LOGGER.debug(f"User search count : {tracking_singleton.get_user_search_count()}")
+            # Keep track of count of user searches. A low count as it is just a POC and not expecting a large number of calls.
             if (tracking_singleton.get_user_search_count() < 51):
                 user_handle = ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", str(form.twitter_handle.data)).split())
                 competitor_handle = ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", str(form.competitors_twitter_handle.data)).split())
@@ -77,11 +86,14 @@ def customerxp():
 
 @app.route('/display/<user_handle>/<competitor_handle>')
 def display(user_handle, competitor_handle):
+    '''
+    A function used to display data. If the twitter handles don't have data on the server or someone tries to call the method/page directly with invalid twitter handles, an error will be displayed. 
+    '''
     LOGGER.debug(f"In display method user handle {user_handle} competitor handle {competitor_handle}")
     error = " "
     path = 'data/'
     file_extension = '.csv'
-
+    # Modification and validation required 
     file_user = path + user_handle + file_extension
     file_competitor = path + competitor_handle + file_extension
 
@@ -91,6 +103,7 @@ def display(user_handle, competitor_handle):
     tracking_singleton = TrackingSingleton.get_instance()
     tracking_singleton.set_data_search_count()
 
+    # Keep track of count of user searches. A low count as it is just a POC and not expecting a large number of calls.
     if (tracking_singleton.get_data_search_count() > 50):
         error = f"Too many data fetches - {tracking_singleton.get_data_search_count()}"
         return render_template('error.html',error=error)
@@ -141,8 +154,6 @@ def display(user_handle, competitor_handle):
         </div>
         """
 
-        
-
         fig.add_tools(hover)
 
         # grab the static resources
@@ -167,6 +178,6 @@ def display(user_handle, competitor_handle):
         error = "There is no data available for one of the twitter handles. Please visit home page and try again."
         return render_template('error.html',error=error)
 
-
+# Helps to run in debug more as an application while development to avoid frequent restarts. 
 if __name__ == "__main__":
     app.run(debug=True)
