@@ -25,13 +25,24 @@ logging.info("POC - Twitter API - Streamer")
 
 LOGGER = logging.getLogger('CustomerXP')
 
+class TwitterApiException(Exception):
+    """
+    Defining a customised exception
+    """
+    
+
 ## twitter client
 class TwitterAPI():
     
     def __init__(self, twitter_user=None):
-        self.twitter_authenticator = TwitterAuthenticator().authenticate_twitter_app()
-        self.twitter_client = API(self.twitter_authenticator)
-        self.twitter_user = twitter_user
+        try:
+            self.twitter_authenticator = TwitterAuthenticator().authenticate_twitter_app()
+            self.twitter_client = API(self.twitter_authenticator)
+            self.twitter_user = twitter_user
+        except TwitterApiException as identifier:
+            LOGGER.fatal("Constructor in TwitterAPI failed.")
+            LOGGER.fatal(identifier)
+            raise TwitterApiException(identifier)
 
     def get_twitter_client_api(self):
         return self.twitter_client
@@ -45,6 +56,10 @@ class TwitterAuthenticator():
         consumer_secret = os.getenv("CONSUMER_SECRET")
         access_token = os.getenv("ACCESS_TOKEN")
         access_token_secret = os.getenv("ACCESS_TOKEN_SECRET")
+
+        if(consumer_key == None or consumer_secret == None or access_token == None or access_token_secret == None):
+            raise TwitterApiException("API keys not valid!")
+
         auth = OAuthHandler(consumer_key, consumer_secret)
         auth.set_access_token(access_token, access_token_secret)
         return auth
@@ -87,28 +102,25 @@ class TwitterUtility():
             #if the file has been there for more than 12 hours, create it again.
             if(diff_day_delta.total_seconds()/60/60 > 12):
                 LOGGER.debug("File exists but it is more than an 12 hours old -> Fetching the file again to get latest data. ")
-                try:
-                    twitter_api = TwitterAPI()
-                    api = twitter_api.get_twitter_client_api()
-                    tweets = api.user_timeline(screen_name=user,count=50)
-                    df = self.tweets_to_data_frame(tweets)
-                    df.to_csv(file)
-                except TweepError as identifier:
-                    LOGGER.debug(identifier)
-                
+                self.save_data_to_file(user, file)
             else:
                 LOGGER.debug("Files exists and is less than an 12 hours, not fetching it for now.")
         else:
             LOGGER.debug("File does not exist. It has to be fetched.")
-            try:
-                twitter_api = TwitterAPI()
-                api = twitter_api.get_twitter_client_api()
-                tweets = api.user_timeline(screen_name=user,count=50)
-                df = self.tweets_to_data_frame(tweets)
-                df.to_csv(file)
-            except TweepError as identifier:
-                LOGGER.error(identifier)
+            self.save_data_to_file(user, file)
         
+    def save_data_to_file(self, user, file):
+        try:
+            twitter_api = TwitterAPI()
+            api = twitter_api.get_twitter_client_api()
+            tweets = api.user_timeline(screen_name=user,count=50)
+            df = self.tweets_to_data_frame(tweets)
+            df.to_csv(file)
+        except TweepError as identifier:
+            LOGGER.error(identifier)
+        except TwitterApiException as identifier:
+            LOGGER.error("generate data failed due to API.")
+            LOGGER.error(identifier)
 
     def validate_twitter_user(self,user):
         user_valid = False
@@ -130,20 +142,27 @@ class TwitterUtility():
                     user_valid = False
                     return user_valid
 
-
-        twitter_api = TwitterAPI()
-        api = twitter_api.get_twitter_client_api()
-        
         try:
+            twitter_api = TwitterAPI()
+            api = twitter_api.get_twitter_client_api()
             u = api.get_user(user)
             LOGGER.debug(f"Twitter user id - {u.id_str}")
             LOGGER.debug(f"Twitter user screen name - {u.screen_name}")
             user_valid = True
             with open("data/users_valid.csv", "a") as f:
                 f.writelines(u.screen_name + "\n")
-        except TweepError:
+        except TweepError as identifier:
+            LOGGER.error(identifier.reason)
+            LOGGER.error(f"Twitter returned error while user validation - {identifier}")
+            if 'Failed to send request:' in identifier.reason:
+                raise TwitterApiException(identifier)
+            
             user_valid = False
             with open("data/users_invalid.csv", "a") as f:
                 f.writelines(user + "\n")
+        except TwitterApiException as identifier:
+            LOGGER.fatal("User could not be verified.")
+            LOGGER.fatal(identifier)
+            raise TwitterApiException(identifier)
 
         return user_valid

@@ -50,17 +50,22 @@ def customerxp():
                 competitor_handle = ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", str(form.competitors_twitter_handle.data)).split())
                 twitter_utility = tweepy_streamer.TwitterUtility()
                 
-                if (twitter_utility.validate_twitter_user(user_handle)):
-                    twitter_utility.generate_data(user_handle)
-                else:
-                    form.twitter_handle_error.data = f"Twitter handle {user_handle} is not valid!"
+                try:
+                    if (twitter_utility.validate_twitter_user(user_handle)):
+                        twitter_utility.generate_data(user_handle)
+                    else:
+                        form.twitter_handle_error.data = f"Twitter handle {user_handle} is not valid!"
+                        return render_template('customerxp.html', form=form)
+                
+                    if (twitter_utility.validate_twitter_user(competitor_handle)):
+                        twitter_utility.generate_data(competitor_handle)
+                    else: 
+                        form.twitter_handle_error.data = f"Twitter handle {competitor_handle} is not valid!"
+                        return render_template('customerxp.html', form=form)
+                except tweepy_streamer.TwitterApiException as identifier:
+                    form.twitter_handle_error.data = f"Fatal Error - Please contact System Administrator - {identifier}"
                     return render_template('customerxp.html', form=form)
                 
-                if (twitter_utility.validate_twitter_user(competitor_handle)):
-                    twitter_utility.generate_data(competitor_handle)
-                else: 
-                    form.twitter_handle_error.data = f"Twitter handle {competitor_handle} is not valid!"
-                    return render_template('customerxp.html', form=form)
                 
                 return redirect(url_for('display', user_handle=user_handle, competitor_handle=competitor_handle))
             else:
