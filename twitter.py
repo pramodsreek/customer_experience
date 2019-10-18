@@ -53,7 +53,7 @@ def customerxp():
         if form.validate():
             tracking_singleton.set_user_search_count()
             LOGGER.debug(f"User search count : {tracking_singleton.get_user_search_count()}")
-            # Keep track of count of user searches. A low count as it is just a POC and not expecting a large number of calls.
+            # Keep track of count of user searches. A low count as it is just a POC and not expecting a large number of calls. It can be combined with time window, if the exact rate limit of API is known. 
             if (tracking_singleton.get_user_search_count() < 51):
                 user_handle = ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", str(form.twitter_handle.data)).split())
                 competitor_handle = ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", str(form.competitors_twitter_handle.data)).split())
@@ -103,7 +103,7 @@ def display(user_handle, competitor_handle):
     tracking_singleton = TrackingSingleton.get_instance()
     tracking_singleton.set_data_search_count()
 
-    # Keep track of count of user searches. A low count as it is just a POC and not expecting a large number of calls.
+    # Keep track of count of user searches. A low count as it is just a POC and not expecting a large number of calls. It can be combined with time window, if the exact rate limit of API is known.
     if (tracking_singleton.get_data_search_count() > 50):
         error = f"Too many data fetches - {tracking_singleton.get_data_search_count()}"
         return render_template('error.html',error=error)
