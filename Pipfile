@@ -16,7 +16,6 @@ pandas = "*"
 environs = "*"
 DateTime = "*"
 textblob = "*"
-logging = "*"
 bokeh = "*"
 
 [requires]
