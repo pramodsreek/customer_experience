@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %} 
+
+
+<form action="" method="POST">
+    <p>
+        <h1>
+            {{form.twitter_handle_error.data}}
+        </h1>
+    </p>
+    <p>
+        {{form.twitter_handle.label}}<br>
+        {{form.twitter_handle(size=30)}}
+    </p>
+    <p>
+        {{form.competitors_twitter_handle.label}}<br>
+        {{form.competitors_twitter_handle(size=30)}}
+    </p>
+        {{ form.csrf_token }}
+    <p>
+        <strong>
+            Please click {{form.submit.label}}
+        </strong>
+    </p>
+    <p>
+        {{form.submit()}}
+    </p>
+</form>
+
+{% endblock content %}
+
