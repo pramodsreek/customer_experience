@@ -1,0 +1,11 @@
+flask
+requests
+Flask-WTF
+tweepy
+numpy
+pandas
+environs
+DateTime
+textblob
+logging
+bokeh
