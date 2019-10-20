@@ -115,7 +115,6 @@ class TwitterUtility():
         :rtype: float
         '''
         analysis = TextBlob(self.tweet_remove_special_char_and_hyperlink(tweet))
-        print(type(analysis.sentiment.polarity))
         return analysis.sentiment.polarity
 
     def tweets_to_data_frame(self,tweets):
