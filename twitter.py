@@ -139,84 +139,91 @@ def display(user_handle, competitor_handle):
         error = f"Too many data fetches - {tracking_singleton.get_data_search_count()}"
         return render_template("error.html", error=error)
     elif file_user_exists and file_competitor_exists:
+        try:
+            
+        
+            df_user = pd.read_csv(file_user, index_col=4, parse_dates=["date"])
+            df_competitor = pd.read_csv(file_competitor, index_col=4, parse_dates=["date"])
 
-        df_user = pd.read_csv(file_user, index_col=4, parse_dates=["date"])
-        df_competitor = pd.read_csv(file_competitor, index_col=4, parse_dates=["date"])
+            df_user_contact_centre = df_user[(df_user["sentiment"] < 0)]
 
-        df_user_contact_centre = df_user[(df_user["sentiment"] < 0)]
+            df_user_bot = df_user[(df_user["sentiment"] >= 0)]
 
-        df_user_bot = df_user[(df_user["sentiment"] >= 0)]
+            tweets_bot = [df_user.columns.values.tolist()] + df_user_bot.values.tolist()
+            tweets_contact_centre = [
+                df_user.columns.values.tolist()
+            ] + df_user_contact_centre.values.tolist()
 
-        tweets_bot = [df_user.columns.values.tolist()] + df_user_bot.values.tolist()
-        tweets_contact_centre = [
-            df_user.columns.values.tolist()
-        ] + df_user_contact_centre.values.tolist()
+            sample_user = df_user.sample(25)
+            source_user = ColumnDataSource(sample_user)
 
-        sample_user = df_user.sample(25)
-        source_user = ColumnDataSource(sample_user)
+            
+            sample_competitor = df_competitor.sample(25)
+            source_competitor = ColumnDataSource(sample_competitor)
 
-        sample_competitor = df_competitor.sample(25)
-        source_competitor = ColumnDataSource(sample_competitor)
+            fig = figure(plot_width=700, plot_height=400, x_axis_type="datetime")
 
-        fig = figure(plot_width=700, plot_height=400, x_axis_type="datetime")
+            fig.circle(
+                x="date",
+                y="sentiment",
+                source=source_user,
+                size=10,
+                color="green",
+                legend=user_handle,
+            )
 
-        fig.circle(
-            x="date",
-            y="sentiment",
-            source=source_user,
-            size=10,
-            color="green",
-            legend=user_handle,
-        )
+            fig.circle(
+                x="date",
+                y="sentiment",
+                source=source_competitor,
+                size=10,
+                color="red",
+                legend=competitor_handle,
+            )
 
-        fig.circle(
-            x="date",
-            y="sentiment",
-            source=source_competitor,
-            size=10,
-            color="red",
-            legend=competitor_handle,
-        )
+            fig.title.text = "Customer Experience"
+            fig.xaxis.axis_label = "Date - Month/Day or Month/Year based on data sample"
+            fig.yaxis.axis_label = "Sentiment"
 
-        fig.title.text = "Customer Experience"
-        fig.xaxis.axis_label = "Date - Month/Day or Month/Year based on data sample"
-        fig.yaxis.axis_label = "Sentiment"
+            fig.legend.location = "top_left"
+            fig.legend.click_policy = "hide"
 
-        fig.legend.location = "top_left"
-        fig.legend.click_policy = "hide"
+            hover = HoverTool()
+            hover.point_policy = "snap_to_data"
+            hover.line_policy = "none"
 
-        hover = HoverTool()
-        hover.point_policy = "snap_to_data"
-        hover.line_policy = "none"
-
-        hover.tooltips = """
-        <div>
-            <div width: 100px word-wrap: break-word>
-                <span style="font-size: 10px;">@tweets</span>
+            hover.tooltips = """
+            <div>
+                <div width: 100px word-wrap: break-word>
+                    <span style="font-size: 10px;">@tweets</span>
+                </div>
             </div>
-        </div>
-        """
+            """
 
-        fig.add_tools(hover)
+            fig.add_tools(hover)
 
-        # grab the static resources
-        js_resources = INLINE.render_js()
-        css_resources = INLINE.render_css()
+            # grab the static resources
+            js_resources = INLINE.render_js()
+            css_resources = INLINE.render_css()
 
-        # render template
-        script, div = components(fig)
-        html = render_template(
-            "cust_support_competition.html",
-            plot_script=script,
-            plot_div=div,
-            js_resources=js_resources,
-            css_resources=css_resources,
-            tweets_bot=tweets_bot,
-            tweets_contact_centre=tweets_contact_centre,
-            user_handle=user_handle,
-            competitor_handle=competitor_handle,
-        )
-        return encode_utf8(html)
+            # render template
+            script, div = components(fig)
+            html = render_template(
+                "cust_support_competition.html",
+                plot_script=script,
+                plot_div=div,
+                js_resources=js_resources,
+                css_resources=css_resources,
+                tweets_bot=tweets_bot,
+                tweets_contact_centre=tweets_contact_centre,
+                user_handle=user_handle,
+                competitor_handle=competitor_handle,
+            )
+            return encode_utf8(html)
+
+        except ValueError as error:
+            error = "There is no data available for one of the twitter handles. Please check data and try again."
+            return render_template("error.html", error=error)
     else:
         error = "There is no data available for one of the twitter handles. Please visit home page and try again."
         return render_template("error.html", error=error)
