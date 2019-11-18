@@ -3,16 +3,16 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>Embed Demo</title>
+    <title>Sentiment Analysis</title>
     {{ js_resources|indent(4)|safe }}
     {{ css_resources|indent(4)|safe }}
     {{ plot_script|indent(4)|safe }}
   </head>
   <body>
     <a href="/">Go back to home page</a>
-    <h1>Sentiment Analysis - {{user_handle}}</h1>
-    <h2>Digital Customer Experience - Customers use twitter to connect with the business and express their frustrations and share positive reviews. There are number of business that are using tweets for customer service and a great customer experience. A great customer experience is likely to lead to higher revenue.  </h2>
-    <h3>Tweets with negative sentiment - These are the most important tweets that a contact centre has to respond to immediately. The contact centre should contact the customer. There is a sample of tweets displayed below showing the interaction of contact centre with the customer. (If non business twitter handle is used, the results will look different.)</h3>
+    <h1>Sentiment Analysis - #{{user_handle}}</h1>
+    <h2>Digital Customer Experience - Customers use twitter to connect with the business and express their frustrations and share positive reviews. There are a number of businesses that are using tweets for customer service and a great customer experience. A great customer experience is likely to lead to higher revenue.</h2>
+    <h3>Tweets with negative sentiment - These are the most important tweets that a contact centre has to respond to immediately (if it is a business). </h3>
     <table  border="1">
         {% for tweet in tweets_contact_centre %}
         <tr>
@@ -22,7 +22,7 @@
         </tr>
         {% endfor %}
     </table>
-    <h2>Tweets with positive sentiment - These tweets can be handled by <bold>bots</bold>. The tweets with neutral (zero) sentiment are included in this listing. They can be used for improvement initiatives.</h2>
+    <h3>Tweets with positive and neutral sentiment - These tweets can be handled by <bold>bots</bold> (if it is a business). </h3>
     <table  border="1">
     {% for tweet in tweets_bot %}
     <tr>
@@ -32,8 +32,8 @@
     </tr>
     {% endfor %}
     </table>
-    <h1>Sentiment Analysis Comparison - {{user_handle}} and {{competitor_handle}}</h1>
-    <h2>Comparison of sentiment analysis with competition. Studying the competitions positive, neutral and negative sentiment can be beneficial.</h2>
+    <h1>Sentiment Analysis Comparison - #{{user_handle}} and #{{competitor_handle}}</h1>
+    <h2>Comparison of sentiment analysis with another handle. Studying the competitions positive, neutral and negative sentiment can be beneficial.</h2>
     <div align="center">
     {{ plot_div|indent(4)|safe }}
     </div>

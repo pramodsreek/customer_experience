@@ -1,5 +1,41 @@
-# customer_experience
-Customer interaction and Competitor comparison using Twitter api and sentiment analysis using Python
+## Customer Experience
+Using Python to analyse sentiment of tweets. In case of a business, Tweets can help to understand the customers view of the brand. Acting on Tweets can create a positive sentiment for the brand. Some of the large organisations are using tweets for customer service. 
 
-The App provides a web page with a form to enter the twitter handle of the business, twitter handle of the businesses competitor and a button to request for the most recent tweets on the timeline. The application fetches the tweets from Twitter API, processes and classifies tweets based on the customers sentiment.  The application loops over the tweets, generates tweets as html and renders on the page for the contact centre to contact customer to resolve their issue and create a positive sentiment for the brand. The tweets are also plotted on an interactive visual display showing a comparison with the competing brand to understand competing brands customers for competitive advantage. 
+###This application has some basic html pages. 
 
+###Index Page to enter twitter handles
+
+<img src="img/BasicFormToFillInTwitterHandles.png" width="600px" >
+
+###Displaying Negative Sentiments on the page
+
+<img src="img/TweetsWithNegativeSentiments.png" width="600px" >
+
+###Displaying Positive Sentiments on the page
+
+<img src="img/TweetsWithPositiveSentiment.png" width="600px" >
+
+###Displaying Plot of Both Twitter Handles
+
+<img src="img/ScreenShotWithSentimentPlotOfBothTwitterHandles.png" width="600px" >
+
+###Displaying Plot of One Twitter Handle
+
+<img src="img/JustLookingAtOneTwitterHandle.png" width="600px" >
+
+###To run this program, please create a .env file with twitter api keys. The following keys are required.
+```#variables with twitter credentials to access Twitter API```
+
+```ACCESS_TOKEN = "###"```
+```ACCESS_TOKEN_SECRET = "###" ```
+```CONSUMER_KEY = "###"```
+```CONSUMER_SECRET = "###"```
+```USER_CLEAN_REGEX = "###"```
+
+###Thanks to following people for providing tutorial that made learning easy
+
+TheCodexMe 
+
+LucidProgTuts
+
+CoreyMSchafer
