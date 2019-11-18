@@ -32,6 +32,10 @@ Using Python to analyse sentiment of tweets. In case of a business, Tweets can h
 ```CONSUMER_SECRET = "###"```
 ```USER_CLEAN_REGEX = "###"```
 
+## A jupyter notebook is included in the package with time series plot using matplotlib.
+
+<img src="img/jupyter_notebook.png" width="600px">
+
 ## Thanks to following people for providing tutorial that made learning easy
 
 TheCodexMe 
