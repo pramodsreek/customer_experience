@@ -1,5 +1,7 @@
 # Customer Experience
-Using Python to analyse sentiment of tweets. In case of a business, Tweets can help to understand the customers view of the brand. Acting on Tweets can create a positive sentiment for the brand. Some of the large organisations are using tweets for customer service. 
+Customer Experience is the perception of the business that drives growth formed by the interaction of the customer with the business. Tweets are an excellent way of understanding a customer's perception. One benefit of tweet is that it is an insight into issues of business. The issue can be product, process or technology and some of these issues may need urgent attention. 
+Python has packages that can analyse tweets for sentiment. This code is a learning exercise. 
+* The code needs polishing.
 
 ## This application has some basic html pages. 
 
